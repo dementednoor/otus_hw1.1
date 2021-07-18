@@ -17,6 +17,13 @@ set_target_properties(helloworld_cli helloworld test_version PROPERTIES
     CXX_STANDARD 14
     CXX_STANDARD_REQUIRED ON
 )
+
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+)
+
 target_include_directories(helloworld
     PRIVATE "${CMAKE_BINARY_DIR}"
 )
@@ -28,8 +35,10 @@ set_target_properties(test_version PROPERTIES
 target_link_libraries(helloworld_cli PRIVATE
     helloworld
 )
+
+
 target_link_libraries(test_version
-    ${Boost_LIBRARIES}
+#    ${Boost_LIBRARIES}
     helloworld
 )
 
@@ -68,7 +77,16 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 
 include(CPack)
+include(GoogleTest)
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 enable_testing()
 
-add_test(test_version test_version)
+target_link_libraries(
+        test_version
+        gtest
+        gtest_main
+        pthread
+)
+
+gtest_discover_tests(test_version)
